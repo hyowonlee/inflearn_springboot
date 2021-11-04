@@ -3,6 +3,6 @@
 #environment
 JAVA 11
 
-IntelliJ
+IntelliJ 2021.2.3
 
 springboot 2.5.5
