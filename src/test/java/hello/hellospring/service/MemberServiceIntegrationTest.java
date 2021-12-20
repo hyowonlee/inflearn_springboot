@@ -1,44 +1,35 @@
 package hello.hellospring.service;
 
 import hello.hellospring.domain.Member;
+import hello.hellospring.repository.MemberRepository;
 import hello.hellospring.repository.MemoryMemberRepository;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.Commit;
+import org.springframework.transaction.annotation.Transactional;
 
-import javax.swing.text.html.Option;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import java.util.Optional;
+//이건 통합테스트 (스프링, db등 다 붙여서 하는 테스트로 시간이 오래걸림)
 
-import static org.junit.jupiter.api.Assertions.*;
+@SpringBootTest // 스프링 테스트를 위한 어노테이션
+@Transactional //테스트 케이스에 이 어노테이션이 있으면 테스트 시작 전 트랜잭션을 시작해 각 테스트가 끝난후 commit하지 않고 rollback함, 이러면 db에 데이터가 남지 않으니 다음 테스트에 영향을 주지 않음(테스트는 반복이 되어야하는데 테스트 내용이 db에 저장되면 반복이 안될수도 있으니 이걸 붙임)
+class MemberServiceIntegrationTest {
 
-//이건 단위 테스트 (단순 자바만 쓰는 테스트로 딱 그 단위만 테스트로 시간이 빠름, 이런 단위테스트로 테스트 하는게 테스트 설계가 잘됐다고 볼수있음)
-
-class MemberServiceTest {
-
+    @Autowired //테스트 용도이기에 생성자에 autowired 하지 않고 그냥 간단히 변수에 직접 DI
     MemberService memberService;
-    MemoryMemberRepository memberRepository;
-
-    @BeforeEach
-    public void beforeEach()
-    {
-        memberRepository = new MemoryMemberRepository();
-        memberService = new MemberService(memberRepository);
-    }
-
-
-    @AfterEach // 각각의 테스트 메서드가 끝날때마다 이 동작을 함
-    public void afterEach()
-    {
-        memberRepository.clearStore(); // 클래스 단위로 테스트할때 메서드마다 객체 생성되어 같은 value 겹치면 오류남 저장소 비우기
-    }
+    @Autowired
+    MemberRepository memberRepository;
 
     @Test
     void 회원가입() { //테스트코드는 한글로 적어도 됨 테스트코드는 빌드될때 코드에 포함되지 않음
         //given     given when then 방식으로 주어진걸로 무엇을 할때 어떤게 나오는가 라는 그냥 코드 나열 방식
         Member member = new Member(); //id는 이때 sequence변수로 자동생성
-        member.setName("spring");
+        member.setName("spring100");
 
         //when
         Long saveId = memberService.join(member); //회원가입 신청
@@ -65,26 +56,6 @@ class MemberServiceTest {
         Assertions.assertThat(e.getMessage()).isEqualTo("이미 존재하는 이름의 회원입니다");
 
 
-//        try
-//        {
-//            memberService.join(member2); //여기서 join 함수에 만들어놓은 중복시 에러를 생성하는게 터질것
-//            fail();//오류발생안하고 여기로 내려오면 테스트 fail
-//        }
-//        catch (IllegalStateException e) //그럼 여기서 catch해줌 join에선 오류를 만들기만하니 catch를 따로 해야됨
-//        {
-//            //에러가 발생해서 에러 메세지를 비교하고 서로 같으면 정상적으로 테스트된것
-//            Assertions.assertThat(e.getMessage()).isEqualTo("이미 존재하는 이름의 회원입니다");
-//        }
-
-        //then
-
     }
 
-    @Test
-    void findMembers() {
-    }
-
-    @Test
-    void findOne() {
-    }
 }
